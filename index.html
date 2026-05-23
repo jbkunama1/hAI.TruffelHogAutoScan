@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TruffleHog AutoScan</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --green: #3fb950;
+      --blue: #58a6ff;
+      --orange: #f78166;
+      --yellow: #e3b341;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--card);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--blue);
+    }
+    nav .brand img { width: 36px; height: 36px; border-radius: 8px; }
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+    }
+    .lang-switch button {
+      background: var(--border);
+      border: none;
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .lang-switch button.active, .lang-switch button:hover {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+    .hero img.logo {
+      width: 140px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(88,166,255,0.25);
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .hero h1 span { color: var(--green); }
+    .hero p.subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .badges img { height: 22px; }
+    .hero .bmac {
+      display: inline-block;
+      margin-top: 8px;
+    }
+    .hero .bmac img { height: 36px; }
+
+    /* MAIN CONTENT */
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .card h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card h2 .icon { font-size: 1.3rem; }
+    .card ul {
+      padding-left: 20px;
+      line-height: 1.9;
+      color: var(--text);
+    }
+    .card ul li { margin-bottom: 4px; }
+    .card p { line-height: 1.7; color: var(--text); }
+
+    /* CODE BLOCK */
+    pre {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #e6edf3;
+      margin-top: 14px;
+    }
+    code { font-family: 'Fira Code', 'Courier New', monospace; }
+    .comment { color: #8b949e; }
+    .key { color: #7ee787; }
+    .val { color: #79c0ff; }
+    .str { color: #a5d6ff; }
+
+    /* TABLE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #010409;
+      color: var(--muted);
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      background: #010409;
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--yellow);
+    }
+
+    /* STEPS */
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .steps li::before {
+      content: counter(step);
+      min-width: 28px;
+      height: 28px;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* RESULT PILLS */
+    .result-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-row:last-child { border-bottom: none; }
+    .pill {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+    .pill.green { background: rgba(63,185,80,0.15); color: var(--green); }
+    .pill.red { background: rgba(247,129,102,0.15); color: var(--orange); }
+
+    /* LINKS */
+    .links-list { list-style: none; padding: 0; }
+    .links-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .links-list li:last-child { border-bottom: none; }
+    .links-list a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .links-list a:hover { text-decoration: underline; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    footer a { color: var(--blue); text-decoration: none; }
+
+    /* LANG VISIBILITY */
+    .de, .en { display: none; }
+    body.lang-de .de { display: block; }
+    body.lang-de span.de { display: inline; }
+    body.lang-en .en { display: block; }
+    body.lang-en span.en { display: inline; }
+    .inline-de, .inline-en { display: none; }
+    body.lang-de .inline-de { display: inline; }
+    body.lang-en .inline-en { display: inline; }
+  </style>
+</head>
+<body class="lang-de">
+
+  <!-- NAV -->
+  <nav>
+    <div class="brand">
+      <img src="https://raw.githubusercontent.com/jbkunama1/hAI.TruffelHogAutoScan/main/logo.png" alt="Logo" />
+      TruffleHog AutoScan
+    </div>
+    <div class="lang-switch">
+      <button id="btn-de" class="active" onclick="setLang('de')">🇩🇪 DE</button>
+      <button id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <img class="logo" src="https://raw.githubusercontent.com/jbkunama1/hAI.TruffelHogAutoScan/main/logo.png" alt="TruffleHog AutoScan Logo" />
+    <h1>🔐 TruffleHog <span>AutoScan</span></h1>
+    <p class="subtitle inline-de">Automatisiertes Secret-Scanning für GitHub-Repositories – täglich um 02:00 UTC via GitHub Actions. 🕵️‍♂️</p>
+    <p class="subtitle inline-en">Automated secret scanning for GitHub repositories – daily at 02:00 UTC via GitHub Actions. 🕵️‍♂️</p>
+    <div class="badges">
+      <img src="https://img.shields.io/github/actions/workflow/status/jbkunama1/hAI.TruffelHogAutoScan/trufflehog.yml?label=TruffleHog%20Scan&logo=github&logoColor=white" alt="scan" />
+      <img src="https://img.shields.io/badge/security-secrets%20scan%20enabled-brightgreen?logo=trustpilot&logoColor=white" alt="security" />
+      <img src="https://img.shields.io/badge/schedule-daily%20at%2002%3A00%20UTC-blue?logo=clockify&logoColor=white" alt="schedule" />
+      <img src="https://img.shields.io/badge/license-MIT-lightgrey?logo=opensource&logoColor=white" alt="license" />
+    </div>
+    <a class="bmac" href="https://www.buymeacoffee.com/highfish" target="_blank">
+      <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" />
+    </a>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="container">
+
+    <!-- WAS MACHT ES / WHAT IT DOES -->
+    <div class="card de">
+      <h2><span class="icon">✨</span> Was macht dieses Setup?</h2>
+      <ul>
+        <li>Scannt bei <strong>jedem Push</strong> auf <code>main</code>/<code>master</code> auf Secrets</li>
+        <li>Führt täglich um <strong>02:00 Uhr UTC</strong> einen vollständigen Scan aus</li>
+        <li>Nutzt die offizielle <a style="color:var(--blue)" href="https://github.com/marketplace/actions/trufflehog-oss">TruffleHog GitHub Action</a> aus dem Marketplace</li>
+        <li>Meldet nur <strong>verifizierte Secrets</strong> (<code>--only-verified</code>) – weniger False Positives</li>
+      </ul>
+    </div>
+    <div class="card en">
+      <h2><span class="icon">✨</span> What does this setup do?</h2>
+      <ul>
+        <li>Scans on <strong>every push</strong> to <code>main</code>/<code>master</code> for secrets</li>
+        <li>Runs a full scan <strong>daily at 02:00 UTC</strong></li>
+        <li>Uses the official <a style="color:var(--blue)" href="https://github.com/marketplace/actions/trufflehog-oss">TruffleHog GitHub Action</a> from the Marketplace</li>
+        <li>Only reports <strong>verified secrets</strong> (<code>--only-verified</code>) – fewer false positives</li>
+      </ul>
+    </div>
+
+    <!-- WORKFLOW -->
+    <div class="card">
+      <h2><span class="icon">⚙️</span> <span class="inline-de">GitHub Actions Workflow</span><span class="inline-en">GitHub Actions Workflow</span></h2>
+      <p class="inline-de">Datei: <code>.github/workflows/trufflehog.yml</code></p>
+      <p class="inline-en">File: <code>.github/workflows/trufflehog.yml</code></p>
+      <pre><code><span class="key">name:</span> <span class="str">TruffleHog Secret Scan</span>
+
+<span class="key">on:</span>
+  <span class="key">schedule:</span>
+    - <span class="key">cron:</span> <span class="str">'0 2 * * *'</span>   <span class="comment"># daily at 02:00 UTC</span>
+  <span class="key">push:</span>
+    <span class="key">branches:</span> <span class="val">[ main, master ]</span>
+
+<span class="key">jobs:</span>
+  <span class="key">trufflehog-scan:</span>
+    <span class="key">runs-on:</span> <span class="str">ubuntu-latest</span>
+    <span class="key">steps:</span>
+      - <span class="key">name:</span> <span class="str">Checkout code</span>
+        <span class="key">uses:</span> <span class="str">actions/checkout@v4</span>
+        <span class="key">with:</span>
+          <span class="key">fetch-depth:</span> <span class="val">0</span>
+      - <span class="key">name:</span> <span class="str">Run TruffleHog OSS</span>
+        <span class="key">uses:</span> <span class="str">trufflesecurity/trufflehog@main</span>
+        <span class="key">with:</span>
+          <span class="key">extra_args:</span> <span class="str">--only-verified</span></code></pre>
+    </div>
+
+    <!-- CRON -->
+    <div class="card">
+      <h2><span class="icon">🕒</span> <span class="inline-de">Cron-Zeitplan</span><span class="inline-en">Cron Schedule</span></h2>
+      <table>
+        <thead>
+          <tr>
+            <th class="inline-de">Feld</th><th class="inline-en">Field</th>
+            <th class="inline-de">Wert</th><th class="inline-en">Value</th>
+            <th class="inline-de">Bedeutung</th><th class="inline-en">Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="inline-de">Minute</td><td class="inline-en">Minute</td><td><code>0</code></td><td class="inline-de">zur vollen Stunde</td><td class="inline-en">at the full hour</td></tr>
+          <tr><td class="inline-de">Stunde</td><td class="inline-en">Hour</td><td><code>2</code></td><td class="inline-de">um 02:00 Uhr</td><td class="inline-en">at 02:00</td></tr>
+          <tr><td class="inline-de">Tag</td><td class="inline-en">Day</td><td><code>*</code></td><td class="inline-de">jeden Tag</td><td class="inline-en">every day</td></tr>
+          <tr><td class="inline-de">Monat</td><td class="inline-en">Month</td><td><code>*</code></td><td class="inline-de">jeden Monat</td><td class="inline-en">every month</td></tr>
+          <tr><td class="inline-de">Wochentag</td><td class="inline-en">Weekday</td><td><code>*</code></td><td class="inline-de">jeden Wochentag</td><td class="inline-en">every weekday</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:14px;color:var(--muted);font-size:0.9rem">⚠️ <span class="inline-de">GitHub Actions nutzt UTC → 02:00 UTC = 03:00 Uhr CEST</span><span class="inline-en">GitHub Actions uses UTC → 02:00 UTC = 03:00 CET / 04:00 CEST</span></p>
+    </div>
+
+    <!-- SETUP -->
+    <div class="card de">
+      <h2><span class="icon">🚀</span> Einrichtung – Schritt für Schritt</h2>
+      <ol class="steps">
+        <li>Repository <strong>hAI.TruffelHogAutoScan</strong> erstellen – erledigt ✅</li>
+        <li>Workflow-Datei unter <code>.github/workflows/trufflehog.yml</code> ablegen – erledigt ✅</li>
+        <li>Badges funktionieren automatisch nach dem ersten Workflow-Run</li>
+        <li>Ersten Run anstoßen: Tab <strong>Actions</strong> → Workflow auswählen → <strong>Run workflow</strong></li>
+      </ol>
+    </div>
+    <div class="card en">
+      <h2><span class="icon">🚀</span> Setup – Step by Step</h2>
+      <ol class="steps">
+        <li>Create repository <strong>hAI.TruffelHogAutoScan</strong> – done ✅</li>
+        <li>Add workflow file at <code>.github/workflows/trufflehog.yml</code> – done ✅</li>
+        <li>Badges activate automatically after the first workflow run</li>
+        <li>Trigger first run: Tab <strong>Actions</strong> → Select workflow → <strong>Run workflow</strong></li>
+      </ol>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card de">
+      <h2><span class="icon">📊</span> Ergebnisse lesen</h2>
+      <div class="result-row"><span class="pill green">✅ Grüner Haken</span> Keine verifizierten Secrets gefunden</div>
+      <div class="result-row"><span class="pill red">❌ Rotes X</span> Secret gefunden → sofort rotieren!</div>
+      <p style="margin-top:16px;">Bei einem Fund: Secret <strong>sofort invalidieren</strong>, Commit-Historie mit <code>git filter-repo</code> bereinigen, erneut pushen.</p>
+    </div>
+    <div class="card en">
+      <h2><span class="icon">📊</span> Reading the Results</h2>
+      <div class="result-row"><span class="pill green">✅ Green checkmark</span> No verified secrets found</div>
+      <div class="result-row"><span class="pill red">❌ Red X</span> Secret detected → rotate immediately!</div>
+      <p style="margin-top:16px;">If found: <strong>Immediately invalidate</strong> the secret, clean history with <code>git filter-repo</code>, push again.</p>
+    </div>
+
+    <!-- BEST PRACTICES -->
+    <div class="card de">
+      <h2><span class="icon">🧱</span> Best Practices</h2>
+      <ul>
+        <li>🚫 Keine API-Keys oder Tokens direkt im Code</li>
+        <li>✅ Secrets nur via GitHub <strong>Repository Secrets</strong> (<code>Settings → Secrets</code>)</li>
+        <li>✅ <code>.env</code>-Dateien immer in <code>.gitignore</code> eintragen</li>
+        <li>✅ Bei Code-Reviews bewusst auf Credentials achten</li>
+      </ul>
+    </div>
+    <div class="card en">
+      <h2><span class="icon">🧱</span> Best Practices</h2>
+      <ul>
+        <li>🚫 Never commit API keys or tokens directly in code</li>
+        <li>✅ Use GitHub <strong>Repository Secrets</strong> only (<code>Settings → Secrets</code>)</li>
+        <li>✅ Always add <code>.env</code> files to <code>.gitignore</code></li>
+        <li>✅ Actively watch for credentials during code reviews</li>
+      </ul>
+    </div>
+
+    <!-- LINKS -->
+    <div class="card">
+      <h2><span class="icon">🧩</span> <span class="inline-de">Nützliche Links</span><span class="inline-en">Useful Links</span></h2>
+      <ul class="links-list">
+        <li>🐷 <a href="https://github.com/trufflesecurity/trufflehog" target="_blank">TruffleHog OSS on GitHub</a></li>
+        <li>🧩 <a href="https://github.com/marketplace/actions/trufflehog-oss" target="_blank">TruffleHog GitHub Action (Marketplace)</a></li>
+        <li>📘 <a href="https://trufflesecurity.com/blog/running-trufflehog-in-a-github-action" target="_blank">Blog: Running TruffleHog in GitHub Actions</a></li>
+        <li>🔐 <a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions Documentation</a></li>
+        <li>📁 <a href="https://github.com/jbkunama1/hAI.TruffelHogAutoScan" target="_blank">Repository auf GitHub</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="inline-de">Made with ❤️ by</span>
+    <span class="inline-en">Made with ❤️ by</span>
+    <a href="https://github.com/jbkunama1" target="_blank">therealteacher</a>
+    &nbsp;•&nbsp;
+    <span class="inline-de">Keep your secrets secret! 🔒</span>
+    <span class="inline-en">Keep your secrets secret! 🔒</span>
+  </footer>
+
+  <script>
+    function setLang(lang) {
+      document.body.className = 'lang-' + lang;
+      document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      localStorage.setItem('trufflehog-lang', lang);
+    }
+    // Restore language preference
+    const saved = localStorage.getItem('trufflehog-lang');
+    if (saved) setLang(saved);
+  </script>
+
+</body>
+</html>
