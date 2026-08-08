@@ -5,8 +5,8 @@
 # 🔐 TruffleHog Secret Scans für dieses Repo
 
 [![TruffleHog Scan](https://img.shields.io/github/actions/workflow/status/jbkunama1/hAI.TruffelHogAutoScan/trufflehog.yml?label=TruffleHog%20Scan&logo=github&logoColor=white)](https://github.com/jbkunama1/hAI.TruffelHogAutoScan/actions/workflows/trufflehog.yml)
-![Security](https://img.shields.io/badge/security-secrets%20scan%20enabled-brightgreen?logo=trustpilot&logoColor=white)
-![Schedule](https://img.shields.io/badge/schedule-daily%20at%2002%3A00%20UTC-blue?logo=clockify&logoColor=white)
+[![Security](https://img.shields.io/badge/security-secrets%20scan%20enabled-brightgreen?logo=trustpilot&logoColor=white)](https://github.com/jbkunama1/hAI.TruffelHogAutoScan)
+[![Schedule](https://img.shields.io/badge/schedule-daily%20at%2002%3A00%20UTC-blue?logo=clockify&logoColor=white)](https://github.com/jbkunama1/hAI.TruffelHogAutoScan)
 
 <a href="https://www.buymeacoffee.com/highfish"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" width="120" height="28" alt="Buy me a coffee"></a>
 
