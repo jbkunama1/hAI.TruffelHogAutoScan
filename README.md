@@ -8,7 +8,7 @@
 [![Security](https://img.shields.io/badge/security-secrets%20scan%20enabled-brightgreen?logo=trustpilot&logoColor=white)](https://github.com/jbkunama1/hAI.TruffelHogAutoScan)
 [![Schedule](https://img.shields.io/badge/schedule-daily%20at%2002%3A00%20UTC-blue?logo=clockify&logoColor=white)](https://github.com/jbkunama1/hAI.TruffelHogAutoScan)
 
-<a href="https://www.buymeacoffee.com/highfish"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" width="120" height="28" alt="Buy me a coffee"></a>
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/highfish)
 
 </div>
 
